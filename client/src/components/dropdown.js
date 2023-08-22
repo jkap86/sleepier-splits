@@ -27,7 +27,17 @@ const Dropdown = ({
             document.removeEventListener('mousedown', handleExitTooltip);
         }
 
-    })
+    }, [])
+
+
+
+    useEffect(() => {
+        if (searched?.display_name) {
+            setDropdownVisible(false)
+        } else {
+            setDropdownVisible(true)
+        }
+    }, [searched])
 
     const getOptions = useCallback((s) => {
         const all_options = list
@@ -108,7 +118,7 @@ const Dropdown = ({
                             .slice(0, 25)
                             .map((dropdown_option, index) => {
                                 return <li key={dropdown_option.gsis_id}>
-                                    <button onMouseDown={() => setSearched(dropdown_option)}>
+                                    <button onMouseDown={() => setSearched(dropdown_option)} type="button">
                                         <p>
                                             <img
                                                 alt="headshot"
