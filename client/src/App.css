@@ -1,0 +1,256 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  --color1: rgb(0, 0, 25);
+  --color2: #00ceb8;
+  --color3: midnightblue;
+  --color4: #1a1c20;
+  --sticky1: 0rem;
+  --sticky2: 7rem;
+  --sticky3: 14rem;
+  --qb: #ff2a6d;
+  --rb: #00ceb8;
+  --wr: #58a7ff;
+  --te: #ffae58;
+  --font1: 'Ubuntu Mono', sans-serif;
+  --font2: 'Pulang', sans-serif;
+  --font3: 'Monomaniac One', sans-serif;
+  --font4: 'GROUPE', sans-serif;
+  font-size: 1vmin;
+  background-color: var(--color1);
+
+  text-align: center;
+  color: white;
+
+  overflow-x: hidden;
+  width: 100vw;
+  height: 100vh;
+  font-family: 'Ubuntu Mono', sans-serif;
+
+  margin: auto;
+  margin: 0;
+  padding: 0;
+  padding-bottom: 25%;
+  position: relative;
+}
+
+h1 {
+  color: var(--color2);
+  font-family: var(--font2);
+  font-size: 7rem;
+}
+
+img {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+
+  object-fit: fill;
+}
+
+h2 {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+h2>table {
+  table-layout: fixed;
+  width: 40rem;
+  margin: auto;
+  border: 1rem ridge grey;
+  font-size: 3rem;
+}
+
+h2>table th,
+h2>table td {
+  box-shadow: 0 0 .5rem white;
+  padding: 1rem;
+  background-image: radial-gradient(darkred -50%, #301934 75%);
+  box-shadow: inset 0 0 2rem black;
+}
+
+h2>table th {
+  text-align: left;
+}
+
+h3 {
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
+  font-size: 3rem;
+}
+
+h3>span {
+  color: darkred;
+  filter: brightness(2);
+}
+
+form {
+  font-size: inherit;
+  width: fit-content;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+form>button[type='submit'] {
+  background-color: darkred;
+  font-family: var(--font1);
+  font-size: 3.5rem;
+  font-weight: 900;
+  width: 30%;
+  margin: 2rem auto;
+  color: var(--te);
+  padding: 1rem;
+  border: .5rem groove var(--te);
+  border-radius: 5rem;
+  box-shadow: inset 0 0 3rem black, 0 0 1rem white;
+}
+
+form>div>label {
+  margin: auto;
+}
+
+ul,
+ol {
+  padding: 0;
+}
+
+li {
+  list-style: none;
+
+}
+
+div.range-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin: auto;
+
+}
+
+div.range {
+  margin: 1rem;
+}
+
+
+
+label {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  font-family: var(--font4);
+  font-size: 2.5rem;
+  color: var(--te);
+}
+
+caption {
+  color: var(--te);
+  font-family: var(--font4);
+  font-size: 3.5rem;
+}
+
+div.range>label {
+  margin: .5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+div.range>label>div>em {
+  font-size: 2rem;
+}
+
+div.range>label>div>select {
+  font-size: 2.5rem;
+  font-family: var(--font3);
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 5rem;
+  border: .5rem double var(--te);
+  box-shadow: inset 0 0 3rem black, 0 0 1rem white;
+}
+
+div.dropdown_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+div.dropdown_container>img {
+  background-color: transparent;
+  filter: drop-shadow(0 0 .25rem black);
+  position: absolute;
+  left: 5rem;
+}
+
+input.search {
+  height: 6rem;
+  font-size: 3rem;
+  padding-left: 10rem;
+  border-radius: 5rem;
+  border: .75rem groove blue;
+  font-weight: 900;
+  background-color: var(--color2);
+  margin: 1rem;
+  box-shadow: inset 0 0 3rem black, 0 0 1rem gray;
+}
+
+
+ol.dropdown {
+  position: absolute;
+  width: 100%;
+  max-height: 50rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  top: 0;
+  margin-top: 7.25rem;
+  z-index: 2;
+}
+
+ol.dropdown>li>button {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background-color: rgb(63, 62, 62);
+  opacity: .95;
+}
+
+ol.dropdown>li>button>p {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+
+  color: white;
+  font-family: var(--font4);
+  font-weight: 900;
+  text-shadow: 0 0 1rem red;
+  height: 7rem;
+  box-shadow: inset 0 0 3rem black;
+  filter: contrast(1.25);
+  opacity: 1;
+  background-color: inherit;
+}
+
+select {
+  color: var(--color2);
+  background-color: var(--color3);
+  border: none;
+}
+
+::-webkit-scrollbar {
+  width: 1rem;
+  height: 1rem;
+  background-color: aqua;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: darkred;
+}
