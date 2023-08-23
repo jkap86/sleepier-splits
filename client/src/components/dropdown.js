@@ -6,7 +6,8 @@ const Dropdown = ({
     placeholder,
     list,
     searched,
-    setSearched
+    setSearched,
+    sendDropdownVisible
 }) => {
     const [dropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownOptions, setDropdownOptions] = useState([]);
@@ -29,7 +30,9 @@ const Dropdown = ({
 
     }, [])
 
-
+    useEffect(() => {
+        sendDropdownVisible && sendDropdownVisible(dropdownVisible)
+    }, [dropdownVisible])
 
     useEffect(() => {
         if (searched?.display_name) {
@@ -41,22 +44,32 @@ const Dropdown = ({
 
     const getOptions = useCallback((s) => {
         const all_options = list
-        const options = all_options.filter(x =>
+        const options = s.trim() === "" ? all_options : all_options.filter(x =>
             x.display_name?.trim().toLowerCase()
                 .replace(/[^a-z0-9]/g, "")
                 .includes(s.replace(/[^a-z0-9]/g, "").trim().toLowerCase()))
             .sort(
-                (a, b) => b.display_name
+                (a, b) => a.display_name
                     ?.trim()
                     .toLowerCase()
                     .replace(/[^a-z0-9]/g, "")
-                    .split(' ')
-                    .includes(
+                    .indexOf(
                         s
                             .replace(/[^a-z0-9]/g, "")
                             .trim()
                             .toLowerCase()
-                    ) ? 1 : -1
+                    )
+                    - b.display_name
+                        ?.trim()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]/g, "")
+                        .indexOf(
+                            s
+                                .replace(/[^a-z0-9]/g, "")
+                                .trim()
+                                .toLowerCase()
+                        )
+
             )
 
 
@@ -103,7 +116,7 @@ const Dropdown = ({
         }
         <input
             onChange={(e) => handleSearch(e.target.value)}
-            onFocus={() => setDropdownVisible(true)}
+            onFocus={(e) => e.target.value === "" ? handleSearch(" ") : null}
             className={'search'}
             placeholder={placeholder}
             type="text"
@@ -115,7 +128,7 @@ const Dropdown = ({
                 <ol className="dropdown" ref={tooltipRef}>
                     {
                         dropdownOptions
-                            .slice(0, 25)
+                            .slice(0, 100)
                             .map((dropdown_option, index) => {
                                 return <li key={dropdown_option.gsis_id}>
                                     <button onMouseDown={() => setSearched(dropdown_option)} type="button">

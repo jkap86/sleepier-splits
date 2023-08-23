@@ -151,6 +151,21 @@ exports.player_ids = async (req, res) => {
         });
 }
 
+exports.getFieldOptions = async (req, res) => {
+    let allEntries = await s2022.findAll({
+        attributes: ['weather'],
+        raw: true
+    })
+
+    const options = Array.from(
+        new Set(
+            allEntries.map(entry => entry.weather)
+        )
+    )
+
+    fs.writeFileSync('weather.json', JSON.stringify(options))
+}
+
 exports.wrsummary = async (req, res) => {
     let player;
     let total;

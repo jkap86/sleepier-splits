@@ -257,7 +257,14 @@ select {
   border: none;
 }
 
-
+i.fa-filter {
+  font-size: 7rem;
+  color: transparent;
+  background-clip: text;
+  background-image: radial-gradient(blue -100%, var(--color2) 100%);
+  filter: drop-shadow(0 0 1.5rem var(--te)) drop-shadow(0 0 1.75rem red);
+  margin-top: 2rem;
+}
 
 div.player-search {
   position: sticky;
@@ -272,6 +279,43 @@ div.player-card {
   background-color: rgba(100, 100, 100, .90);
   background-image: radial-gradient(blue -50%, transparent 100%);
   box-shadow: inset 0 0 10rem blue, 0 0 5rem white;
+}
+
+div.filters-modal {
+  position: absolute;
+  z-index: 3;
+  box-shadow: 0 0 5rem white, inset 0 0 10rem #301934;
+  background-image: radial-gradient(#301934 5%, rgba(70, 0, 155, .75) 100%);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  width: 80vmin;
+  height: 80vmin;
+  overflow-y: auto;
+  border-radius: 5rem;
+  border: 2rem double orangered;
+}
+
+div.filters-modal>i.fa-rectangle-xmark {
+  font-size: 5rem;
+  float: right;
+  margin: 2.5rem;
+  color: red;
+  background-color: white;
+  line-height: 50%;
+  filter: drop-shadow(0 0 1rem black);
+  text-shadow: 0 0 .25rem black;
+}
+
+div.filters-modal>div {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
 }
 
 ::-webkit-scrollbar {

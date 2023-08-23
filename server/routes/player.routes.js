@@ -12,5 +12,7 @@ module.exports = app => {
 
     router.get('/player_ids', player.player_ids)
 
+    router.get('/getfieldoptions', player.getFieldOptions)
+
     app.use('/player', router)
 }
