@@ -7,10 +7,19 @@ const FiltersModal = forwardRef(({
     setPlayerToInclude,
     playerToExclude,
     setPlayerToExclude,
-    setFiltersModalVisible
+    setFiltersModalVisible,
+    breakoutby,
+    setBreakoutby
 }, ref) => {
 
     useEffect(() => {
+        if (ref.current !== null) {
+            ref.current.focus();
+            ref.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            })
+        }
         // Disable scroll when the component mounts
         document.body.style.overflow = 'hidden';
 
@@ -40,6 +49,14 @@ const FiltersModal = forwardRef(({
                     setSearched={setPlayerToExclude}
                     list={players}
                 />
+            </label>
+            <label>
+                Breakout By
+                <select value={breakoutby} onChange={(e) => setBreakoutby(e.target.value)}>
+                    <option></option>
+                    <option>Formation</option>
+                    <option>aDot</option>
+                </select>
             </label>
         </div>
     </div>

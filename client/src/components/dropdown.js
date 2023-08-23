@@ -94,7 +94,6 @@ const Dropdown = ({
         } else {
 
             options = getOptions(s)
-            console.log({ options })
             visible = true
             setSearched(s)
         }

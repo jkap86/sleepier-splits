@@ -183,9 +183,29 @@ exports.wrsummary = async (req, res) => {
         filters.push({ [Op.notLike]: `%${req.query.exclude}%` })
     }
 
+    let attributes = [
+        'offense_personnel',
+        'air_yards',
+        'receiving_yards',
+        'complete_pass',
+        'touchdown',
+        'game_id'
+    ]
+
+    if (req.query.breakoutby === 'aDot') {
+        attributes.push(
+            [Sequelize.literal(`CASE
+                    WHEN air_yards = '' THEN 'Unknown'
+                    WHEN CAST(air_yards AS INTEGER) < 5 THEN '<5'
+                    WHEN CAST(air_yards AS INTEGER) BETWEEN 5 AND 9 THEN '5-9'
+                    WHEN CAST(air_yards AS INTEGER) BETWEEN 10 AND 14 THEN '10-14'
+                    ELSE '15+'
+                END`), 'air_yards_range']
+        )
+    }
     try {
         total = await s2022.findAll({
-            attributes: ['receiving_yards', 'complete_pass', 'offense_personnel'],
+            attributes: attributes,
             where: {
                 [Op.and]: [
                     {
@@ -217,14 +237,7 @@ exports.wrsummary = async (req, res) => {
         })
 
         player = await s2022.findAll({
-            attributes: [
-                'offense_personnel',
-                'air_yards',
-                'receiving_yards',
-                'complete_pass',
-                'touchdown',
-                'game_id'
-            ],
+            attributes: attributes,
             where: {
                 [Op.and]: [
                     {
@@ -273,40 +286,109 @@ exports.wrsummary = async (req, res) => {
         games: Array.from(new Set(player.map(p => p.game_id))).length
     }
 
-    const total_two_wr = total.filter(t => t.offense_personnel.includes('2 WR'));
-    const player_two_wr = player.filter(p => p.offense_personnel.includes('2 WR'));
+    let two_wr, three_wr;
 
-    const two_wr = {
-        tgt_share: (player_two_wr.length / total_two_wr.length).toString(),
-        yprr: (player_two_wr.reduce((acc, cur) => acc + parseInt(cur.receiving_yards || 0), 0) / total_two_wr.length).toString(),
-        aDot: (player_two_wr.reduce((acc, cur) => acc + parseInt(cur.air_yards || 0), 0) / player_two_wr.length).toString(),
-        plays: total_two_wr.length,
-        targets: player_two_wr.length,
-        rec: player_two_wr.filter(p => parseInt(p.complete_pass) === 1).length,
-        yards: player_two_wr.reduce((acc, cur) => acc + (parseInt(cur.receiving_yards) || 0), 0),
-        tds: player_two_wr.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
-        games: Array.from(new Set(player_two_wr.map(p => p.game_id))).length
+    let yard_under_5, yard_5_9, yard_10_14, yard_over_15;
+
+    if (req.query.breakoutby === 'Formation') {
+        const total_two_wr = total.filter(t => t.offense_personnel.includes('2 WR'));
+        const player_two_wr = player.filter(p => p.offense_personnel.includes('2 WR'));
+
+        two_wr = {
+            tgt_share: (player_two_wr.length / total_two_wr.length).toString(),
+            yprr: (player_two_wr.reduce((acc, cur) => acc + parseInt(cur.receiving_yards || 0), 0) / total_two_wr.length).toString(),
+            aDot: (player_two_wr.reduce((acc, cur) => acc + parseInt(cur.air_yards || 0), 0) / player_two_wr.length).toString(),
+            plays: total_two_wr.length,
+            targets: player_two_wr.length,
+            rec: player_two_wr.filter(p => parseInt(p.complete_pass) === 1).length,
+            yards: player_two_wr.reduce((acc, cur) => acc + (parseInt(cur.receiving_yards) || 0), 0),
+            tds: player_two_wr.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
+            games: Array.from(new Set(player_two_wr.map(p => p.game_id))).length
+        }
+
+        const total_three_wr = total.filter(t => t.offense_personnel.includes('3 WR'));
+        const player_three_wr = player.filter(p => p.offense_personnel.includes('3 WR'));
+
+        three_wr = {
+            tgt_share: (player_three_wr.length / total_three_wr.length).toString(),
+            yprr: (player_three_wr.reduce((acc, cur) => acc + parseInt(cur.receiving_yards || 0), 0) / total_three_wr.length).toString(),
+            aDot: (player_three_wr.reduce((acc, cur) => acc + parseInt(cur.air_yards || 0), 0) / player_three_wr.length).toString(),
+            plays: total_three_wr.length,
+            targets: player_three_wr.length,
+            rec: player_three_wr.filter(p => parseInt(p.complete_pass) === 1).length,
+            yards: player_three_wr.reduce((acc, cur) => acc + (parseInt(cur.receiving_yards) || 0), 0),
+            tds: player_three_wr.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
+            games: Array.from(new Set(player_three_wr.map(p => p.game_id))).length
+        }
+    } else if (req.query.breakoutby === 'aDot') {
+        const total_under_5 = total.filter(t => t.air_yards_range === '<5');
+        const player_under_5 = player.filter(p => p.air_yards_range === '<5');
+
+        yard_under_5 = {
+            tgt_share: (player_under_5.length / total_under_5.length).toString(),
+            yprr: (player_under_5.reduce((acc, cur) => acc + parseInt(cur.receiving_yards || 0), 0) / total_under_5.length).toString(),
+            aDot: (player_under_5.reduce((acc, cur) => acc + parseInt(cur.air_yards || 0), 0) / player_under_5.length).toString(),
+            plays: total_under_5.length,
+            targets: player_under_5.length,
+            rec: player_under_5.filter(p => parseInt(p.complete_pass) === 1).length,
+            yards: player_under_5.reduce((acc, cur) => acc + (parseInt(cur.receiving_yards) || 0), 0),
+            tds: player_under_5.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
+            games: Array.from(new Set(player_under_5.map(p => p.game_id))).length
+        }
+
+        const total_5_9 = total.filter(t => t.air_yards_range === '5-9');
+        const player_5_9 = player.filter(p => p.air_yards_range === '5-9');
+
+        yard_5_9 = {
+            tgt_share: (player_5_9.length / total_5_9.length).toString(),
+            yprr: (player_5_9.reduce((acc, cur) => acc + parseInt(cur.receiving_yards || 0), 0) / total_5_9.length).toString(),
+            aDot: (player_5_9.reduce((acc, cur) => acc + parseInt(cur.air_yards || 0), 0) / total_5_9.length).toString(),
+            plays: total_5_9.length,
+            targets: player_5_9.length,
+            rec: player_5_9.filter(p => parseInt(p.complete_pass) === 1).length,
+            yards: player_5_9.reduce((acc, cur) => acc + (parseInt(cur.receiving_yards) || 0), 0),
+            tds: player_5_9.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
+            games: Array.from(new Set(player_5_9.map(p => p.game_id))).length
+        }
+
+        const total_10_14 = total.filter(t => t.air_yards_range === '10-14');
+        const player_10_14 = player.filter(p => p.air_yards_range === '10-14');
+
+        yard_10_14 = {
+            tgt_share: (player_10_14.length / total_10_14.length).toString(),
+            yprr: (player_10_14.reduce((acc, cur) => acc + parseInt(cur.receiving_yards || 0), 0) / total_10_14.length).toString(),
+            aDot: (player_10_14.reduce((acc, cur) => acc + parseInt(cur.air_yards || 0), 0) / player_10_14.length).toString(),
+            plays: total_10_14.length,
+            targets: player_10_14.length,
+            rec: player_10_14.filter(p => parseInt(p.complete_pass) === 1).length,
+            yards: player_10_14.reduce((acc, cur) => acc + (parseInt(cur.receiving_yards) || 0), 0),
+            tds: player_10_14.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
+            games: Array.from(new Set(player_10_14.map(p => p.game_id))).length
+        }
+
+        const total_over_15 = total.filter(t => t.air_yards_range === '15+');
+        const player_over_15 = player.filter(p => p.air_yards_range === '15+');
+
+        yard_over_15 = {
+            tgt_share: (player_over_15.length / total_over_15.length).toString(),
+            yprr: (player_over_15.reduce((acc, cur) => acc + parseInt(cur.receiving_yards || 0), 0) / total_over_15.length).toString(),
+            aDot: (player_over_15.reduce((acc, cur) => acc + parseInt(cur.air_yards || 0), 0) / player_over_15.length).toString(),
+            plays: total_over_15.length,
+            targets: player_over_15.length,
+            rec: player_over_15.filter(p => parseInt(p.complete_pass) === 1).length,
+            yards: player_over_15.reduce((acc, cur) => acc + (parseInt(cur.receiving_yards) || 0), 0),
+            tds: player_over_15.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
+            games: Array.from(new Set(player_over_15.map(p => p.game_id))).length
+        }
     }
-
-    const total_three_wr = total.filter(t => t.offense_personnel.includes('3 WR'));
-    const player_three_wr = player.filter(p => p.offense_personnel.includes('3 WR'));
-
-    const three_wr = {
-        tgt_share: (player_three_wr.length / total_three_wr.length).toString(),
-        yprr: (player_three_wr.reduce((acc, cur) => acc + parseInt(cur.receiving_yards || 0), 0) / total_three_wr.length).toString(),
-        aDot: (player_three_wr.reduce((acc, cur) => acc + parseInt(cur.air_yards || 0), 0) / player_three_wr.length).toString(),
-        plays: total_three_wr.length,
-        targets: player_three_wr.length,
-        rec: player_three_wr.filter(p => parseInt(p.complete_pass) === 1).length,
-        yards: player_three_wr.reduce((acc, cur) => acc + (parseInt(cur.receiving_yards) || 0), 0),
-        tds: player_three_wr.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
-        games: Array.from(new Set(player_three_wr.map(p => p.game_id))).length
-    }
-
     res.send({
         ...totals,
         player_id: req.query.player_id,
         two_wr: two_wr,
-        three_wr: three_wr
+        three_wr: three_wr,
+        yard_under_5: yard_under_5,
+        yard_5_9: yard_5_9,
+        yard_10_14: yard_10_14,
+        yard_over_15: yard_over_15
     })
 }

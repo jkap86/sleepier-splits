@@ -163,7 +163,7 @@ label {
 
 caption {
   color: var(--te);
-  font-family: var(--font4);
+  font-family: var(--font3);
   font-size: 3.5rem;
 }
 
@@ -177,7 +177,7 @@ div.range>label>div>em {
   font-size: 2rem;
 }
 
-div.range>label>div>select {
+select {
   font-size: 2.5rem;
   font-family: var(--font3);
   margin: 1rem;
@@ -185,6 +185,9 @@ div.range>label>div>select {
   border-radius: 5rem;
   border: .5rem double var(--te);
   box-shadow: inset 0 0 3rem black, 0 0 1rem white;
+  color: var(--color2);
+  background-color: var(--color3);
+  text-align: center;
 }
 
 div.dropdown_container {
@@ -251,11 +254,7 @@ ol.dropdown>li>button>p {
   background-color: inherit;
 }
 
-select {
-  color: var(--color2);
-  background-color: var(--color3);
-  border: none;
-}
+select {}
 
 i.fa-filter {
   font-size: 7rem;
@@ -263,7 +262,9 @@ i.fa-filter {
   background-clip: text;
   background-image: radial-gradient(blue -100%, var(--color2) 100%);
   filter: drop-shadow(0 0 1.5rem var(--te)) drop-shadow(0 0 1.75rem red);
+  margin: auto;
   margin-top: 2rem;
+  width: fit-content;
 }
 
 div.player-search {
