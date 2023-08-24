@@ -26,7 +26,12 @@ module.exports = (sequelize, Sequelize, season) => {
                     'receiving_yards',
                     'complete_pass',
                     'touchdown',
-                    'game_id'
+                    'game_id',
+                    'offense_players',
+                    'receiver_player_id',
+                    'pass_attempt',
+                    'season',
+                    'week'
                 ]
             }
         ]
