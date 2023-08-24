@@ -107,6 +107,7 @@ const Main = () => {
                 startWeek: startWeek,
                 endSeason: endSeason,
                 endWeek: endWeek,
+                breakoutby: breakoutby
             }
 
             if (whichPlayer === 'Player 1') {
@@ -120,17 +121,17 @@ const Main = () => {
 
     }
 
-    let keys = [];
+    let keys_one = [];
 
-    switch (breakoutby) {
+    switch (playerData1?.breakoutby) {
         case 'Formation':
-            keys = [
+            keys_one = [
                 { label: '2 WR', key: 'two_wr' },
                 { label: '3 WR', key: 'three_wr' }
             ]
             break;
         case 'aDot':
-            keys = [
+            keys_one = [
                 { label: 'Under 5 YD', key: 'yard_under_5' },
                 { label: '5-9 YD', key: 'yard_5_9' },
                 { label: '10-14 YD', key: 'yard_10_14' },
@@ -138,7 +139,38 @@ const Main = () => {
             ]
             break;
         case 'Season':
-            keys = (whichPlayer === 'Player 1' ? Object.keys(playerData1) : Object.keys(playerData2))
+            keys_one = (whichPlayer === 'Player 1' ? Object.keys(playerData1) : Object.keys(playerData2))
+                .filter(key => key.startsWith('season_'))
+                .map(key => {
+                    return {
+                        label: key.split('_')[1],
+                        key: key
+                    }
+                })
+            break
+        default:
+            break;
+    }
+
+    let keys_two = [];
+
+    switch (playerData2?.breakoutby) {
+        case 'Formation':
+            keys_two = [
+                { label: '2 WR', key: 'two_wr' },
+                { label: '3 WR', key: 'three_wr' }
+            ]
+            break;
+        case 'aDot':
+            keys_two = [
+                { label: 'Under 5 YD', key: 'yard_under_5' },
+                { label: '5-9 YD', key: 'yard_5_9' },
+                { label: '10-14 YD', key: 'yard_10_14' },
+                { label: 'Over 15 YD', key: 'yard_over_15' }
+            ]
+            break;
+        case 'Season':
+            keys_two = (whichPlayer === 'Player 1' ? Object.keys(playerData1) : Object.keys(playerData2))
                 .filter(key => key.startsWith('season_'))
                 .map(key => {
                     return {
@@ -317,7 +349,7 @@ const Main = () => {
                                             </tbody>
                                         </table>
                                         {
-                                            keys.map(key => {
+                                            keys_one.map(key => {
                                                 return <table>
                                                     <caption>{key.label}</caption>
                                                     <tbody>
@@ -438,7 +470,7 @@ const Main = () => {
                                             </tbody>
                                         </table>
                                         {
-                                            keys.map(key => {
+                                            keys_two.map(key => {
                                                 return <table>
                                                     <caption>{key.label}</caption>
                                                     <tbody>
