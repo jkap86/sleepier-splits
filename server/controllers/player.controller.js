@@ -169,6 +169,8 @@ exports.getFieldOptions = async (req, res) => {
 exports.wrsummary = async (req, res) => {
     let player;
     let total;
+    let total_seasons;
+    let total_player;
 
     const filters = [];
 
@@ -270,8 +272,117 @@ exports.wrsummary = async (req, res) => {
             },
             raw: true
         })
+
+        if (req.query.breakoutby === 'Season') {
+            total_seasons = await s2022.findAll({
+                attributes: [
+                    'season',
+                    [Sequelize.fn('SUM', Sequelize.literal(`CASE
+                            WHEN air_yards = '' THEN 0
+                            ELSE CAST(air_yards AS INTEGER)
+                        END`)), 'air_yards'],
+                    [Sequelize.fn('SUM', Sequelize.literal(`CASE
+                            WHEN receiving_yards = '' THEN 0
+                            ELSE CAST(receiving_yards AS INTEGER)
+                        END`)), 'receiving_yards'],
+                    [Sequelize.fn('SUM', Sequelize.literal(`CASE
+                            WHEN complete_pass = '' THEN 0
+                            ELSE CAST(complete_pass AS INTEGER)
+                        END`)), 'complete_pass'],
+                    [Sequelize.fn('SUM', Sequelize.literal(`CASE
+                            WHEN touchdown = '' THEN 0
+                            ELSE CAST(touchdown AS INTEGER)
+                        END`)), 'touchdown'],
+                    [Sequelize.fn('COUNT', 'DISTINCT game_id'), 'game_id']
+                ],
+                where: {
+                    [Op.and]: [
+                        {
+                            offense_players: {
+                                [Op.and]: [
+                                    { [Op.like]: `%${req.query.player_id}%` },
+                                    ...filters
+                                ]
+                            }
+                        },
+                        {
+                            pass_attempt: "1"
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.literal(`CAST(season AS INTEGER) >= ${req.query.startSeason}`),
+                                Sequelize.literal(`CAST(week AS INTEGER) >= ${req.query.startWeek}`)
+                            ]
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.literal(`CAST(season AS INTEGER) <= ${req.query.endSeason}`),
+                                Sequelize.literal(`CAST(week AS INTEGER) <= ${req.query.endWeek}`)
+                            ]
+                        }
+                    ]
+                },
+                group: ['season'],
+                raw: true
+            })
+
+            total_player = await s2022.findAll({
+                attributes: [
+                    'season',
+                    [Sequelize.fn('SUM', Sequelize.literal(`CASE
+                            WHEN air_yards = '' THEN 0
+                            ELSE CAST(air_yards AS INTEGER)
+                        END`)), 'air_yards'],
+                    [Sequelize.fn('SUM', Sequelize.literal(`CASE
+                            WHEN receiving_yards = '' THEN 0
+                            ELSE CAST(receiving_yards AS INTEGER)
+                        END`)), 'receiving_yards'],
+                    [Sequelize.fn('SUM', Sequelize.literal(`CASE
+                            WHEN complete_pass = '' THEN 0
+                            ELSE CAST(complete_pass AS INTEGER)
+                        END`)), 'complete_pass'],
+                    [Sequelize.fn('SUM', Sequelize.literal(`CASE
+                            WHEN touchdown = '' THEN 0
+                            ELSE CAST(touchdown AS INTEGER)
+                        END`)), 'touchdown'],
+                    [Sequelize.fn('COUNT', 'DISTINCT game_id'), 'game_id']
+                ],
+                where: {
+                    [Op.and]: [
+                        {
+                            offense_players: {
+                                [Op.and]: [
+                                    { [Op.like]: `%${req.query.player_id}%` },
+                                    ...filters
+                                ]
+                            }
+                        },
+                        {
+                            receiver_player_id: `${req.query.player_id}`
+                        },
+                        {
+                            pass_attempt: "1"
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.literal(`CAST(season AS INTEGER) >= ${req.query.startSeason}`),
+                                Sequelize.literal(`CAST(week AS INTEGER) >= ${req.query.startWeek}`)
+                            ]
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.literal(`CAST(season AS INTEGER) <= ${req.query.endSeason}`),
+                                Sequelize.literal(`CAST(week AS INTEGER) <= ${req.query.endWeek}`)
+                            ]
+                        }
+                    ]
+                },
+                group: ['season'],
+                raw: true
+            })
+        }
     } catch (err) {
-        console.log(err.message)
+        console.log(err.message + ' season QUERY')
     }
 
     const totals = {
@@ -289,6 +400,8 @@ exports.wrsummary = async (req, res) => {
     let two_wr, three_wr;
 
     let yard_under_5, yard_5_9, yard_10_14, yard_over_15;
+
+    let season_breakout = {};
 
     if (req.query.breakoutby === 'Formation') {
         const total_two_wr = total.filter(t => t.offense_personnel.includes('2 WR'));
@@ -380,6 +493,25 @@ exports.wrsummary = async (req, res) => {
             tds: player_over_15.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
             games: Array.from(new Set(player_over_15.map(p => p.game_id))).length
         }
+    } else if (req.query.breakoutby === 'Season') {
+
+
+        total_seasons
+            ?.forEach(total_season => {
+                const player_season = total_player.find(p => p.season === total_season.season);
+
+                season_breakout[`season_${total_season.season}`] = {
+                    tgt_share: (player_season.game_id / total_season.game_id).toString(),
+                    yprr: (player_season.receiving_yards / total_season.game_id).toString(),
+                    aDot: (player_season.air_yards / player_season.game_id).toString(),
+                    plays: total_season.game_id,
+                    targets: player_season.game_id,
+                    rec: player_season.complete_pass,
+                    yards: player_season.receiving_yards,
+                    tds: player_season.touchdown,
+                    games: player_season.game_id
+                }
+            })
     }
     res.send({
         ...totals,
@@ -389,6 +521,7 @@ exports.wrsummary = async (req, res) => {
         yard_under_5: yard_under_5,
         yard_5_9: yard_5_9,
         yard_10_14: yard_10_14,
-        yard_over_15: yard_over_15
+        yard_over_15: yard_over_15,
+        ...season_breakout
     })
 }

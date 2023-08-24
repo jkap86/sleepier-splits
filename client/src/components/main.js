@@ -106,6 +106,16 @@ const Main = () => {
                 { label: 'Over 15 YD', key: 'yard_over_15' }
             ]
             break;
+        case 'Season':
+            keys = Object.keys(playerData)
+                .filter(key => key.startsWith('season_'))
+                .map(key => {
+                    return {
+                        label: key.split('_')[1],
+                        key: key
+                    }
+                })
+            break
         default:
             break;
     }
@@ -139,6 +149,9 @@ const Main = () => {
                                     <option>2021</option>
                                     <option>2020</option>
                                     <option>2019</option>
+                                    <option>2018</option>
+                                    <option>2017</option>
+                                    <option>2016</option>
                                 </select>
                                 <em>Week</em>
                                 <select value={startWeek} onChange={(e) => setStartWeek(e.target.value)}>

@@ -54,6 +54,7 @@ const FiltersModal = forwardRef(({
                 Breakout By
                 <select value={breakoutby} onChange={(e) => setBreakoutby(e.target.value)}>
                     <option></option>
+                    <option>Season</option>
                     <option>Formation</option>
                     <option>aDot</option>
                 </select>
