@@ -60,7 +60,11 @@ h1>img {
   height: 15rem;
   display: block;
   margin: auto;
-  filter: drop-shadow(0 0 1rem blue) drop-shadow(0 0 3rem aqua);
+  filter: drop-shadow(0 0 1rem blue) drop-shadow(0 0 2rem aqua);
+}
+
+div.player-card.one>h1>img {
+  filter: drop-shadow(0 0 1rem red) drop-shadow(0 0 2rem pink);
 }
 
 h2 {
@@ -94,10 +98,11 @@ h3 {
   width: 100%;
   justify-content: space-evenly;
   font-size: 3rem;
+  padding: 0 2rem;
 }
 
 h3>span {
-  color: darkred;
+  color: var(--color2);
   filter: brightness(2);
 }
 
@@ -274,12 +279,21 @@ div.player-search {
 }
 
 div.player-card {
+  width: 50%;
+  display: inline-block;
   position: sticky;
   top: 0;
   z-index: 1;
   background-color: rgba(100, 100, 100, .90);
   background-image: radial-gradient(blue -50%, transparent 100%);
   box-shadow: inset 0 0 10rem blue, 0 0 5rem white;
+  height: 100vh;
+  overflow-y: scroll;
+}
+
+div.player-card.two {
+  background-image: radial-gradient(darkred -50%, transparent 100%);
+  box-shadow: inset 0 0 10rem darkred, 0 0 5rem white;
 }
 
 div.filters-modal {
