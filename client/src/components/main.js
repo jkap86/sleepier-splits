@@ -240,6 +240,9 @@ const Main = () => {
                                     <option>2021</option>
                                     <option>2020</option>
                                     <option>2019</option>
+                                    <option>2018</option>
+                                    <option>2017</option>
+                                    <option>2016</option>
                                 </select>
                                 <em>Week</em>
                                 <select value={endWeek} onChange={(e) => setEndWeek(e.target.value)}>
