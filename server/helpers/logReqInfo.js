@@ -2,10 +2,9 @@
 const logReqInfo = (req, res, next) => {
     const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-    console.log('REQUEST*** ' + {
-        IPAddress: clientIP,
-        ...req.query
-    });
+    console.log('REQUEST*** ' + clientIP)
+
+    console.log(Object.keys(req.query).map(key => `${key}: ${req.query[key]}`).join('\n'));
 
     next();
 }
