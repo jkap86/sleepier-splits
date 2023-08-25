@@ -273,10 +273,10 @@ exports.wrsummary = async (req, res) => {
             raw: true
         })
 
-        if (req.query.breakoutby === 'Season') {
+        if (['season', 'passer_player_id'].includes(req.query.breakoutby)) {
             total_seasons = await s2022.findAll({
                 attributes: [
-                    'season',
+                    req.query.breakoutby,
                     [Sequelize.fn('SUM', Sequelize.literal(`CASE
                             WHEN air_yards = '' THEN 0
                             ELSE CAST(air_yards AS INTEGER)
@@ -322,13 +322,13 @@ exports.wrsummary = async (req, res) => {
                         }
                     ]
                 },
-                group: ['season'],
+                group: [req.query.breakoutby],
                 raw: true
             })
 
             total_player = await s2022.findAll({
                 attributes: [
-                    'season',
+                    req.query.breakoutby,
                     [Sequelize.fn('SUM', Sequelize.literal(`CASE
                             WHEN air_yards = '' THEN 0
                             ELSE CAST(air_yards AS INTEGER)
@@ -377,7 +377,7 @@ exports.wrsummary = async (req, res) => {
                         }
                     ]
                 },
-                group: ['season'],
+                group: [req.query.breakoutby],
                 raw: true
             })
         }
@@ -403,7 +403,7 @@ exports.wrsummary = async (req, res) => {
 
     let season_breakout = {};
 
-    if (req.query.breakoutby === 'Formation') {
+    if (req.query.breakoutby === 'formation') {
         const total_two_wr = total.filter(t => t.offense_personnel.includes('2 WR'));
         const player_two_wr = player.filter(p => p.offense_personnel.includes('2 WR'));
 
@@ -493,9 +493,7 @@ exports.wrsummary = async (req, res) => {
             tds: player_over_15.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
             games: Array.from(new Set(player_over_15.map(p => p.game_id))).length
         }
-    } else if (req.query.breakoutby === 'Season') {
-
-
+    } else if (req.query.breakoutby === 'season') {
         total_seasons
             ?.forEach(total_season => {
                 const player_season = total_player.find(p => p.season === total_season.season);
@@ -512,7 +510,25 @@ exports.wrsummary = async (req, res) => {
                     games: Array.from(new Set(player_season.game_id)).length
                 }
             })
+    } else if (req.query.breakoutby === 'passer_player_id') {
+        total_seasons
+            ?.forEach(passer => {
+                const player_passer = total_player.find(p => p.passer_player_id === passer.passer_player_id);
+
+                season_breakout[`passer_${passer.passer_player_id}`] = {
+                    tgt_share: (player_passer.game_id.length / passer.game_id.length).toString(),
+                    yprr: (player_passer.receiving_yards / passer.game_id.length).toString(),
+                    aDot: (player_passer.air_yards / player_passer.game_id.length).toString(),
+                    plays: passer.game_id.length,
+                    targets: player_passer.game_id.length,
+                    rec: player_passer.complete_pass,
+                    yards: player_passer.receiving_yards,
+                    tds: player_passer.touchdown,
+                    games: Array.from(new Set(player_passer.game_id)).length
+                }
+            })
     }
+
     res.send({
         ...totals,
         player_id: req.query.player_id,

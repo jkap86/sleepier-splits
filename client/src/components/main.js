@@ -44,6 +44,8 @@ const Main = () => {
 
     }, [])
 
+    console.log({ breakoutby })
+
     useEffect(() => {
         setPlayerToSearch('')
         setPlayerToInclude('')
@@ -93,7 +95,7 @@ const Main = () => {
                     startWeek: startWeek,
                     endSeason: endSeason,
                     endWeek: endWeek,
-                    breakoutby: breakoutby
+                    breakoutby: breakoutby === 'QB' ? 'passer_player_id' : breakoutby
                 }
             })
 
@@ -105,7 +107,7 @@ const Main = () => {
                 startWeek: startWeek,
                 endSeason: endSeason,
                 endWeek: endWeek,
-                breakoutby: breakoutby
+                breakoutby: breakoutby === 'QB' ? 'passer_player_id' : breakoutby
             }
 
             if (whichPlayer === 'Player 1') {
@@ -137,7 +139,7 @@ const Main = () => {
     let keys_one = [];
 
     switch (playerData1?.breakoutby) {
-        case 'Formation':
+        case 'formation':
             keys_one = [
                 { label: '2 WR', key: 'two_wr' },
                 { label: '3 WR', key: 'three_wr' }
@@ -151,8 +153,8 @@ const Main = () => {
                 { label: 'Over 15 YD', key: 'yard_over_15' }
             ]
             break;
-        case 'Season':
-            keys_one = (whichPlayer === 'Player 1' ? Object.keys(playerData1) : Object.keys(playerData2))
+        case 'season':
+            keys_one = Object.keys(playerData1)
                 .filter(key => key.startsWith('season_'))
                 .map(key => {
                     return {
@@ -160,7 +162,16 @@ const Main = () => {
                         key: key
                     }
                 })
-            break
+            break;
+        case 'passer_player_id':
+            keys_one = Object.keys(playerData1)
+                .filter(key => key.startsWith('passer_'))
+                .map(key => {
+                    return {
+                        label: players.find(p => p.gsis_id === key.split('_')[1])?.display_name,
+                        key: key
+                    }
+                })
         default:
             break;
     }
@@ -168,7 +179,7 @@ const Main = () => {
     let keys_two = [];
 
     switch (playerData2?.breakoutby) {
-        case 'Formation':
+        case 'formation':
             keys_two = [
                 { label: '2 WR', key: 'two_wr' },
                 { label: '3 WR', key: 'three_wr' }
@@ -182,8 +193,8 @@ const Main = () => {
                 { label: 'Over 15 YD', key: 'yard_over_15' }
             ]
             break;
-        case 'Season':
-            keys_two = (whichPlayer === 'Player 1' ? Object.keys(playerData1) : Object.keys(playerData2))
+        case 'season':
+            keys_two = Object.keys(playerData2)
                 .filter(key => key.startsWith('season_'))
                 .map(key => {
                     return {
@@ -191,7 +202,16 @@ const Main = () => {
                         key: key
                     }
                 })
-            break
+            break;
+        case 'passer_player_id':
+            keys_one = Object.keys(playerData2)
+                .filter(key => key.startsWith('passer_'))
+                .map(key => {
+                    return {
+                        label: players.find(p => p.gsis_id === key.split('_')[1])?.display_name,
+                        key: key
+                    }
+                })
         default:
             break;
     }
@@ -416,7 +436,7 @@ const Main = () => {
                                                 </tr>
                                                 <tr>
                                                     <th>yards</th>
-                                                    <td>{playerData1.yards?.toLocaleString("en-US")}</td>
+                                                    <td>{parseInt(playerData1.yards)?.toLocaleString("en-US")}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>tds</th>
@@ -459,7 +479,7 @@ const Main = () => {
                                                         </tr>
                                                         <tr>
                                                             <th>yards</th>
-                                                            <td>{playerData1[key.key]?.yards?.toLocaleString("en-US")}</td>
+                                                            <td>{parseInt(playerData1[key.key]?.yards)?.toLocaleString("en-US")}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>tds</th>
@@ -537,7 +557,7 @@ const Main = () => {
                                                 </tr>
                                                 <tr>
                                                     <th>yards</th>
-                                                    <td>{playerData2.yards?.toLocaleString("en-US")}</td>
+                                                    <td>{parseInt(playerData2.yards)?.toLocaleString("en-US")}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>tds</th>
@@ -580,7 +600,7 @@ const Main = () => {
                                                         </tr>
                                                         <tr>
                                                             <th>yards</th>
-                                                            <td>{playerData2[key.key]?.yards}</td>
+                                                            <td>{parseInt(playerData2[key.key])?.yards?.toLocaleString("en-US")}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>tds</th>
