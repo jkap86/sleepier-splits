@@ -382,253 +382,263 @@ const Main = () => {
                 : null
         }
         {
-            isLoading
-                ? loadingIcon
-                : (dropdownVisible || (!playerFound1 && !playerFound2))
-                    ? null
-                    :
-                    <>
-                        {
-                            playerFound1?.display_name ?
-                                <div className='player-card one'>
-                                    <h1>
-                                        {
-                                            playerFound1
-                                            && <img
-                                                alt='headshot'
-                                                src={playerFound1?.headshot || headshot}
-                                            />
-                                        }
-                                        {playerFound1?.display_name}
-                                    </h1>
-                                    <h3>
-                                        <span>
-                                            {playerData1.startSeason && (playerData1.startSeason + ' Week ' + playerData1.startWeek)}&nbsp;
-                                            -&nbsp;
-                                            {playerData1.endSeason + ' Week ' + playerData1.endWeek}
-                                        </span>
-                                    </h3>
-                                    <h3>
-                                        <span>
-                                            {playerData1.include !== '' && 'With: ' + playerData1.include}
-                                            {playerData1.exclude !== '' && 'Without: ' + playerData1.exclude}
-                                        </span>
-                                    </h3>
-                                    <h2>
-                                        <table>
-                                            <caption>TOTALS</caption>
-                                            <tbody>
-                                                <tr>
-                                                    <th>Games</th>
-                                                    <td>{playerData1.games}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Plays</th>
-                                                    <td>{playerData1.plays}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Targets</th>
-                                                    <td>{playerData1.targets}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Rec</th>
-                                                    <td>{playerData1.rec}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>yards</th>
-                                                    <td>{parseInt(playerData1.yards)?.toLocaleString("en-US")}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>tds</th>
-                                                    <td>{playerData1.tds}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Tgt Share</th>
-                                                    <td>{playerData1.tgt_share && parseFloat(playerData1.tgt_share)?.toLocaleString("en-US", { maximumFractionDigits: 3 })}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>aDot</th>
-                                                    <td>{playerData1.aDot && parseFloat(playerData1.aDot)?.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>YPRR</th>
-                                                    <td>{playerData1.yprr && parseFloat(playerData1.yprr)?.toLocaleString("en-US", { maximumFractionDigits: 2 })}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        {
-                                            keys_one.map(key => {
-                                                return <table>
-                                                    <caption>{key.label}</caption>
+            (dropdownVisible || (!playerFound1 && !playerFound2 && !isLoading))
+                ? null
+                :
+                <>
+                    {
+                        (playerFound1?.display_name || (whichPlayer === 'Player 1' && isLoading))
+                            ? <div className='player-card one'>
+                                {
+                                    (whichPlayer === 'Player 1' && isLoading)
+                                        ? loadingIcon
+                                        : <>
+                                            <h1>
+                                                {
+                                                    playerFound1
+                                                    && <img
+                                                        alt='headshot'
+                                                        src={playerFound1?.headshot || headshot}
+                                                    />
+                                                }
+                                                {playerFound1?.display_name}
+                                            </h1>
+                                            <h3>
+                                                <span>
+                                                    {playerData1.startSeason && (playerData1.startSeason + ' Week ' + playerData1.startWeek)}&nbsp;
+                                                    -&nbsp;
+                                                    {playerData1.endSeason + ' Week ' + playerData1.endWeek}
+                                                </span>
+                                            </h3>
+                                            <h3>
+                                                <span>
+                                                    {playerData1.include !== '' && 'With: ' + playerData1.include}
+                                                    {playerData1.exclude !== '' && 'Without: ' + playerData1.exclude}
+                                                </span>
+                                            </h3>
+                                            <h2>
+                                                <table>
+                                                    <caption>TOTALS</caption>
                                                     <tbody>
                                                         <tr>
                                                             <th>Games</th>
-                                                            <td>{playerData1[key.key]?.games}</td>
+                                                            <td>{playerData1.games}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>Plays</th>
-                                                            <td>{playerData1[key.key]?.plays}</td>
+                                                            <td>{playerData1.plays}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>Targets</th>
-                                                            <td>{playerData1[key.key]?.targets}</td>
+                                                            <td>{playerData1.targets}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>Rec</th>
-                                                            <td>{playerData1[key.key]?.rec}</td>
+                                                            <td>{playerData1.rec}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>yards</th>
-                                                            <td>{parseInt(playerData1[key.key]?.yards)?.toLocaleString("en-US")}</td>
+                                                            <td>{parseInt(playerData1.yards)?.toLocaleString("en-US")}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>tds</th>
-                                                            <td>{playerData1[key.key]?.tds}</td>
+                                                            <td>{playerData1.tds}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>Tgt Share</th>
-                                                            <td>{playerData1[key.key]?.tgt_share && parseFloat(playerData1[key.key]?.tgt_share)?.toLocaleString("en-US", { maximumFractionDigits: 3 })}</td>
+                                                            <td>{playerData1.tgt_share && parseFloat(playerData1.tgt_share)?.toLocaleString("en-US", { maximumFractionDigits: 3 })}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>aDot</th>
-                                                            <td>{playerData1[key.key]?.aDot && parseFloat(playerData1[key.key]?.aDot)?.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
+                                                            <td>{playerData1.aDot && parseFloat(playerData1.aDot)?.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>YPRR</th>
-                                                            <td>{playerData1[key.key]?.yprr && parseFloat(playerData1[key.key]?.yprr)?.toLocaleString("en-US", { maximumFractionDigits: 2 })}</td>
+                                                            <td>{playerData1.yprr && parseFloat(playerData1.yprr)?.toLocaleString("en-US", { maximumFractionDigits: 2 })}</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                            })
+                                                {
+                                                    keys_one.map(key => {
+                                                        return <table>
+                                                            <caption>{key.label}</caption>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th>Games</th>
+                                                                    <td>{playerData1[key.key]?.games}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Plays</th>
+                                                                    <td>{playerData1[key.key]?.plays}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Targets</th>
+                                                                    <td>{playerData1[key.key]?.targets}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Rec</th>
+                                                                    <td>{playerData1[key.key]?.rec}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>yards</th>
+                                                                    <td>{parseInt(playerData1[key.key]?.yards)?.toLocaleString("en-US")}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>tds</th>
+                                                                    <td>{playerData1[key.key]?.tds}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Tgt Share</th>
+                                                                    <td>{playerData1[key.key]?.tgt_share && parseFloat(playerData1[key.key]?.tgt_share)?.toLocaleString("en-US", { maximumFractionDigits: 3 })}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>aDot</th>
+                                                                    <td>{playerData1[key.key]?.aDot && parseFloat(playerData1[key.key]?.aDot)?.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>YPRR</th>
+                                                                    <td>{playerData1[key.key]?.yprr && parseFloat(playerData1[key.key]?.yprr)?.toLocaleString("en-US", { maximumFractionDigits: 2 })}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    })
 
-                                        }
+                                                }
 
-                                    </h2>
-                                </div>
-                                : null
-                        }
-                        {
-                            playerFound2?.display_name ?
-                                <div
-                                    className='player-card two'
-                                >
-                                    <h1>
-                                        {
-                                            playerFound2
-                                            && <img
-                                                alt='headshot'
-                                                src={playerFound2?.headshot || headshot}
-                                            />
-                                        }
-                                        {playerFound2?.display_name}
-                                    </h1>
-                                    <h3>
-                                        <span>
-                                            {playerData2.startSeason && (playerData2.startSeason + ' Week ' + playerData2.startWeek)}&nbsp;
-                                            -&nbsp;
-                                            {playerData2.endSeason + ' Week ' + playerData2.endWeek}
-                                        </span>
-                                    </h3>
-                                    <h3>
-                                        <span>
-                                            {playerData2.include !== '' && 'With: ' + playerData2.include}
-                                            {playerData2.exclude !== '' && 'Without: ' + playerData2.exclude}
-                                        </span>
-                                    </h3>
-                                    <h2>
-                                        <table>
-                                            <caption>TOTALS</caption>
-                                            <tbody>
-                                                <tr>
-                                                    <th>Games</th>
-                                                    <td>{playerData2.games}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Plays</th>
-                                                    <td>{playerData2.plays}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Targets</th>
-                                                    <td>{playerData2.targets}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Rec</th>
-                                                    <td>{playerData2.rec}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>yards</th>
-                                                    <td>{parseInt(playerData2.yards)?.toLocaleString("en-US")}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>tds</th>
-                                                    <td>{playerData2.tds}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Tgt Share</th>
-                                                    <td>{playerData2.tgt_share && parseFloat(playerData2.tgt_share)?.toLocaleString("en-US", { maximumFractionDigits: 3 })}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>aDot</th>
-                                                    <td>{playerData2.aDot && parseFloat(playerData2.aDot)?.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>YPRR</th>
-                                                    <td>{playerData2.yprr && parseFloat(playerData2.yprr)?.toLocaleString("en-US", { maximumFractionDigits: 2 })}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        {
-                                            keys_two.map(key => {
-                                                return <table>
-                                                    <caption>{key.label}</caption>
+                                            </h2>
+                                        </>
+                                }
+                            </div>
+                            : null
+                    }
+                    {
+                        (playerFound2?.display_name || (whichPlayer === 'Player 2' && isLoading))
+                            ? <div
+                                className='player-card two'
+                            >
+                                {
+                                    (whichPlayer === 'Player 2' && isLoading)
+                                        ? loadingIcon
+                                        : <>
+                                            <h1>
+                                                {
+                                                    playerFound2
+                                                    && <img
+                                                        alt='headshot'
+                                                        src={playerFound2?.headshot || headshot}
+                                                    />
+                                                }
+                                                {playerFound2?.display_name}
+                                            </h1>
+                                            <h3>
+                                                <span>
+                                                    {playerData2.startSeason && (playerData2.startSeason + ' Week ' + playerData2.startWeek)}&nbsp;
+                                                    -&nbsp;
+                                                    {playerData2.endSeason + ' Week ' + playerData2.endWeek}
+                                                </span>
+                                            </h3>
+                                            <h3>
+                                                <span>
+                                                    {playerData2.include !== '' && 'With: ' + playerData2.include}
+                                                    {playerData2.exclude !== '' && 'Without: ' + playerData2.exclude}
+                                                </span>
+                                            </h3>
+                                            <h2>
+                                                <table>
+                                                    <caption>TOTALS</caption>
                                                     <tbody>
                                                         <tr>
                                                             <th>Games</th>
-                                                            <td>{playerData2[key.key]?.games}</td>
+                                                            <td>{playerData2.games}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>Plays</th>
-                                                            <td>{playerData2[key.key]?.plays}</td>
+                                                            <td>{playerData2.plays}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>Targets</th>
-                                                            <td>{playerData2[key.key]?.targets}</td>
+                                                            <td>{playerData2.targets}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>Rec</th>
-                                                            <td>{playerData2[key.key]?.rec}</td>
+                                                            <td>{playerData2.rec}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>yards</th>
-                                                            <td>{parseInt(playerData2[key.key])?.yards?.toLocaleString("en-US")}</td>
+                                                            <td>{parseInt(playerData2.yards)?.toLocaleString("en-US")}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>tds</th>
-                                                            <td>{playerData2[key.key]?.tds}</td>
+                                                            <td>{playerData2.tds}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>Tgt Share</th>
-                                                            <td>{playerData2[key.key]?.tgt_share && parseFloat(playerData2[key.key]?.tgt_share)?.toLocaleString("en-US", { maximumFractionDigits: 3 })}</td>
+                                                            <td>{playerData2.tgt_share && parseFloat(playerData2.tgt_share)?.toLocaleString("en-US", { maximumFractionDigits: 3 })}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>aDot</th>
-                                                            <td>{playerData2[key.key]?.aDot && parseFloat(playerData2[key.key]?.aDot)?.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
+                                                            <td>{playerData2.aDot && parseFloat(playerData2.aDot)?.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>YPRR</th>
-                                                            <td>{playerData2[key.key]?.yprr && parseFloat(playerData2[key.key]?.yprr)?.toLocaleString("en-US", { maximumFractionDigits: 2 })}</td>
+                                                            <td>{playerData2.yprr && parseFloat(playerData2.yprr)?.toLocaleString("en-US", { maximumFractionDigits: 2 })}</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                            })
+                                                {
+                                                    keys_two.map(key => {
+                                                        return <table>
+                                                            <caption>{key.label}</caption>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th>Games</th>
+                                                                    <td>{playerData2[key.key]?.games}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Plays</th>
+                                                                    <td>{playerData2[key.key]?.plays}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Targets</th>
+                                                                    <td>{playerData2[key.key]?.targets}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Rec</th>
+                                                                    <td>{playerData2[key.key]?.rec}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>yards</th>
+                                                                    <td>{parseInt(playerData2[key.key])?.yards?.toLocaleString("en-US")}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>tds</th>
+                                                                    <td>{playerData2[key.key]?.tds}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Tgt Share</th>
+                                                                    <td>{playerData2[key.key]?.tgt_share && parseFloat(playerData2[key.key]?.tgt_share)?.toLocaleString("en-US", { maximumFractionDigits: 3 })}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>aDot</th>
+                                                                    <td>{playerData2[key.key]?.aDot && parseFloat(playerData2[key.key]?.aDot)?.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>YPRR</th>
+                                                                    <td>{playerData2[key.key]?.yprr && parseFloat(playerData2[key.key]?.yprr)?.toLocaleString("en-US", { maximumFractionDigits: 2 })}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    })
 
-                                        }
+                                                }
 
-                                    </h2>
-                                </div>
-                                : null
-                        }
-                    </>
+                                            </h2>
+                                        </>
+                                }
+                            </div>
+                            : null
+                    }
+                </>
         }
     </div>
 }
