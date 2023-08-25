@@ -13,12 +13,14 @@ function start() {
     const cors = require('cors');
     const compression = require('compression');
     const path = require('path');
+    const { logReqInfo } = require('./helpers/logReqInfo');
 
     const app = express();
 
     app.use(compression())
     app.use(cors());
     app.use(express.json());
+    app.use(logReqInfo);
     app.use(express.static(path.resolve(__dirname, '../client/build')));
 
     const db = require("./models");
@@ -43,3 +45,4 @@ function start() {
         console.log(`Server is running on port ${PORT}.`);
     });
 }
+
