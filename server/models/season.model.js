@@ -17,24 +17,6 @@ module.exports = (sequelize, Sequelize, season) => {
         ...Object.fromEntries(headers.map(header => {
             return [header, { type: Sequelize.TEXT }]
         }))
-    }, {
-        indexes: [
-            {
-                fields: [
-                    'offense_personnel',
-                    'air_yards',
-                    'receiving_yards',
-                    'complete_pass',
-                    'touchdown',
-                    'game_id',
-                    'offense_players',
-                    'receiver_player_id',
-                    'pass_attempt',
-                    'season',
-                    'week'
-                ]
-            }
-        ]
     });
 
     return Season(season);

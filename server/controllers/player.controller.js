@@ -293,7 +293,7 @@ exports.wrsummary = async (req, res) => {
                             WHEN touchdown = '' THEN 0
                             ELSE CAST(touchdown AS INTEGER)
                         END`)), 'touchdown'],
-                    [Sequelize.fn('COUNT', 'DISTINCT game_id'), 'game_id']
+                    [Sequelize.fn('ARRAY_AGG', Sequelize.col('game_id')), 'game_id']
                 ],
                 where: {
                     [Op.and]: [
@@ -345,7 +345,7 @@ exports.wrsummary = async (req, res) => {
                             WHEN touchdown = '' THEN 0
                             ELSE CAST(touchdown AS INTEGER)
                         END`)), 'touchdown'],
-                    [Sequelize.fn('COUNT', 'DISTINCT game_id'), 'game_id']
+                    [Sequelize.fn('ARRAY_AGG', Sequelize.col('game_id')), 'game_id']
                 ],
                 where: {
                     [Op.and]: [
@@ -501,15 +501,15 @@ exports.wrsummary = async (req, res) => {
                 const player_season = total_player.find(p => p.season === total_season.season);
 
                 season_breakout[`season_${total_season.season}`] = {
-                    tgt_share: (player_season.game_id / total_season.game_id).toString(),
-                    yprr: (player_season.receiving_yards / total_season.game_id).toString(),
-                    aDot: (player_season.air_yards / player_season.game_id).toString(),
-                    plays: total_season.game_id,
-                    targets: player_season.game_id,
+                    tgt_share: (player_season.game_id.length / total_season.game_id.length).toString(),
+                    yprr: (player_season.receiving_yards / total_season.game_id.length).toString(),
+                    aDot: (player_season.air_yards / player_season.game_id.length).toString(),
+                    plays: total_season.game_id.length,
+                    targets: player_season.game_id.length,
                     rec: player_season.complete_pass,
                     yards: player_season.receiving_yards,
                     tds: player_season.touchdown,
-                    games: player_season.game_id
+                    games: Array.from(new Set(player_season.game_id)).length
                 }
             })
     }
@@ -524,4 +524,38 @@ exports.wrsummary = async (req, res) => {
         yard_over_15: yard_over_15,
         ...season_breakout
     })
+}
+
+exports.topwr = async (req, res) => {
+    const topwr = await s2022.findAll({
+        attributes: [
+            'receiver_player_id',
+            [Sequelize.fn('SUM', Sequelize.literal(`CASE
+                WHEN receiving_yards = '' THEN 0
+                ELSE CAST(receiving_yards AS INTEGER)
+            END`)), 'receiving_yards']
+        ],
+        order: [['receiving_yards', 'DESC']],
+        limit: 50,
+        where: {
+            [Op.and]: [
+                {
+                    [Op.and]: [
+                        Sequelize.literal(`CAST(season AS INTEGER) >= ${req.query.startSeason}`),
+                        Sequelize.literal(`CAST(week AS INTEGER) >= ${req.query.startWeek}`)
+                    ]
+                },
+                {
+                    [Op.and]: [
+                        Sequelize.literal(`CAST(season AS INTEGER) <= ${req.query.endSeason}`),
+                        Sequelize.literal(`CAST(week AS INTEGER) <= ${req.query.endWeek}`)
+                    ]
+                }
+            ]
+        },
+        group: ['receiver_player_id'],
+        raw: true
+    })
+
+    res.send(topwr)
 }

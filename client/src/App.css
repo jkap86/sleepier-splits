@@ -52,7 +52,7 @@ img {
 
 h1 {
   filter: drop-shadow(0 0 1rem darkred) drop-shadow(0 0 1rem blue);
-  margin: 5rem;
+  margin: 7rem auto;
 }
 
 h1>img {
@@ -193,6 +193,14 @@ select {
   color: var(--color2);
   background-color: var(--color3);
   text-align: center;
+}
+
+select.nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  opacity: .75;
+  filter: contrast(2);
 }
 
 div.dropdown_container {

@@ -22,9 +22,7 @@ const Main = () => {
     const [filtersModalVisible, setFiltersModalVisible] = useState(false);
     const filtersModalRef = useRef();
     const [dropdownVisible, setDropdownVisible] = useState(false);
-    const playerCard1Ref = useRef();
-    const playerCard2Ref = useRef();
-    const [dragging2, setDragging2] = useState(false);
+    const [view, setView] = useState('Player Comparison')
 
     useEffect(() => {
         const handleExitTooltip = (event) => {
@@ -121,6 +119,21 @@ const Main = () => {
 
     }
 
+    const fetchTop50 = async (e) => {
+        e.preventDefault();
+
+        const topwr = await axios.get('/player/topwr', {
+            params: {
+                startSeason: startSeason,
+                startWeek: startWeek,
+                endSeason: endSeason,
+                endWeek: endWeek
+            }
+        })
+
+        console.log({ topwr: topwr.data })
+    }
+
     let keys_one = [];
 
     switch (playerData1?.breakoutby) {
@@ -186,80 +199,152 @@ const Main = () => {
     const playerFound1 = players.find(p => p.gsis_id === playerData1.player_id)
     const playerFound2 = players.find(p => p.gsis_id === playerData2.player_id)
 
-    console.log(dragging2)
     return <div className='player-container'>
+        <select className='nav' value={view} onChange={(e) => setView(e.target.value)}>
+            <option>Player Comparison</option>
+        </select>
         <div className="player-search">
             <h1>Sleepier Splits</h1>
-            <form onSubmit={(e) => fetchPlayerStats(e)}>
+            {
+                view === 'Player Comparison'
+                    ? <form onSubmit={(e) => fetchPlayerStats(e)}>
 
-                <div>
-                    <label>
-                        <span onClick={() => setWhichPlayer(prevState => prevState === 'Player 1' ? 'Player 2' : 'Player 1')}>{whichPlayer}</span>
-                        <Dropdown
-                            searched={playerToSearch}
-                            setSearched={setPlayerToSearch}
-                            list={players}
-                            sendDropdownVisible={(data) => setDropdownVisible(data)}
-                        />
-                        <i onClick={() => setFiltersModalVisible(true)} className="fa-solid fa-filter"></i>
-                    </label>
-                </div>
-                <div className='range-container'>
-                    <div className='range'>
-                        <label>
-                            FROM
-                            <div>
-                                <select value={startSeason} onChange={(e) => setStartSeason(e.target.value)}>
-                                    <option>2022</option>
-                                    <option>2021</option>
-                                    <option>2020</option>
-                                    <option>2019</option>
-                                    <option>2018</option>
-                                    <option>2017</option>
-                                    <option>2016</option>
-                                </select>
-                                <em>Week</em>
-                                <select value={startWeek} onChange={(e) => setStartWeek(e.target.value)}>
-                                    {
-                                        Array.from(Array(18).keys()).map(key => {
-                                            return <option key={key + 1}>
-                                                {key + 1}
-                                            </option>
-                                        })
-                                    }
-                                </select>
+                        <div>
+                            <label>
+                                <span onClick={() => setWhichPlayer(prevState => prevState === 'Player 1' ? 'Player 2' : 'Player 1')}>{whichPlayer}</span>
+                                <Dropdown
+                                    searched={playerToSearch}
+                                    setSearched={setPlayerToSearch}
+                                    list={players}
+                                    sendDropdownVisible={(data) => setDropdownVisible(data)}
+                                />
+                                <i onClick={() => setFiltersModalVisible(true)} className="fa-solid fa-filter"></i>
+                            </label>
+                        </div>
+                        <div className='range-container'>
+                            <div className='range'>
+                                <label>
+                                    FROM
+                                    <div>
+                                        <select value={startSeason} onChange={(e) => setStartSeason(e.target.value)}>
+                                            <option>2022</option>
+                                            <option>2021</option>
+                                            <option>2020</option>
+                                            <option>2019</option>
+                                            <option>2018</option>
+                                            <option>2017</option>
+                                            <option>2016</option>
+                                        </select>
+                                        <em>Week</em>
+                                        <select value={startWeek} onChange={(e) => setStartWeek(e.target.value)}>
+                                            {
+                                                Array.from(Array(18).keys()).map(key => {
+                                                    return <option key={key + 1}>
+                                                        {key + 1}
+                                                    </option>
+                                                })
+                                            }
+                                        </select>
+                                    </div>
+                                </label>
                             </div>
-                        </label>
-                    </div>
-                    <div className='range'>
-                        <label>
-                            TO
-                            <div>
-                                <select value={endSeason} onChange={(e) => setEndSeason(e.target.value)}>
-                                    <option>2022</option>
-                                    <option>2021</option>
-                                    <option>2020</option>
-                                    <option>2019</option>
-                                    <option>2018</option>
-                                    <option>2017</option>
-                                    <option>2016</option>
-                                </select>
-                                <em>Week</em>
-                                <select value={endWeek} onChange={(e) => setEndWeek(e.target.value)}>
-                                    {
-                                        Array.from(Array(18).keys()).map(key => {
-                                            return <option key={key + 1}>
-                                                {key + 1}
-                                            </option>
-                                        })
-                                    }
-                                </select>
+                            <div className='range'>
+                                <label>
+                                    TO
+                                    <div>
+                                        <select value={endSeason} onChange={(e) => setEndSeason(e.target.value)}>
+                                            <option>2022</option>
+                                            <option>2021</option>
+                                            <option>2020</option>
+                                            <option>2019</option>
+                                            <option>2018</option>
+                                            <option>2017</option>
+                                            <option>2016</option>
+                                        </select>
+                                        <em>Week</em>
+                                        <select value={endWeek} onChange={(e) => setEndWeek(e.target.value)}>
+                                            {
+                                                Array.from(Array(18).keys()).map(key => {
+                                                    return <option key={key + 1}>
+                                                        {key + 1}
+                                                    </option>
+                                                })
+                                            }
+                                        </select>
+                                    </div>
+                                </label>
                             </div>
-                        </label>
-                    </div>
-                </div>
-                <button type="submit" disabled={isLoading}>Submit</button>
-            </form>
+                        </div>
+                        <button type="submit" disabled={isLoading}>Submit</button>
+                    </form>
+                    : view === 'Top 50'
+                        ? <form onSubmit={(e) => fetchTop50(e)}>
+                            <div>
+                                <label>
+                                    Category
+                                    <select>
+                                        <option value={'receiving_yards'}>receiving yards</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div className='range-container'>
+                                <div className='range'>
+                                    <label>
+                                        FROM
+                                        <div>
+                                            <select value={startSeason} onChange={(e) => setStartSeason(e.target.value)}>
+                                                <option>2022</option>
+                                                <option>2021</option>
+                                                <option>2020</option>
+                                                <option>2019</option>
+                                                <option>2018</option>
+                                                <option>2017</option>
+                                                <option>2016</option>
+                                            </select>
+                                            <em>Week</em>
+                                            <select value={startWeek} onChange={(e) => setStartWeek(e.target.value)}>
+                                                {
+                                                    Array.from(Array(18).keys()).map(key => {
+                                                        return <option key={key + 1}>
+                                                            {key + 1}
+                                                        </option>
+                                                    })
+                                                }
+                                            </select>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div className='range'>
+                                    <label>
+                                        TO
+                                        <div>
+                                            <select value={endSeason} onChange={(e) => setEndSeason(e.target.value)}>
+                                                <option>2022</option>
+                                                <option>2021</option>
+                                                <option>2020</option>
+                                                <option>2019</option>
+                                                <option>2018</option>
+                                                <option>2017</option>
+                                                <option>2016</option>
+                                            </select>
+                                            <em>Week</em>
+                                            <select value={endWeek} onChange={(e) => setEndWeek(e.target.value)}>
+                                                {
+                                                    Array.from(Array(18).keys()).map(key => {
+                                                        return <option key={key + 1}>
+                                                            {key + 1}
+                                                        </option>
+                                                    })
+                                                }
+                                            </select>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" disabled={isLoading}>Submit</button>
+                        </form>
+                        : null
+            }
         </div>
         {
             filtersModalVisible ?
@@ -331,7 +416,7 @@ const Main = () => {
                                                 </tr>
                                                 <tr>
                                                     <th>yards</th>
-                                                    <td>{playerData1.yards}</td>
+                                                    <td>{playerData1.yards?.toLocaleString("en-US")}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>tds</th>
@@ -374,7 +459,7 @@ const Main = () => {
                                                         </tr>
                                                         <tr>
                                                             <th>yards</th>
-                                                            <td>{playerData1[key.key]?.yards}</td>
+                                                            <td>{playerData1[key.key]?.yards?.toLocaleString("en-US")}</td>
                                                         </tr>
                                                         <tr>
                                                             <th>tds</th>
@@ -452,7 +537,7 @@ const Main = () => {
                                                 </tr>
                                                 <tr>
                                                     <th>yards</th>
-                                                    <td>{playerData2.yards}</td>
+                                                    <td>{playerData2.yards?.toLocaleString("en-US")}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>tds</th>
