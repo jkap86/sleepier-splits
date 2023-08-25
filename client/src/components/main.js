@@ -46,7 +46,6 @@ const Main = () => {
 
     }, [])
 
-    console.log({ breakoutby })
 
     useEffect(() => {
         setPlayerToSearch('')
@@ -100,6 +99,7 @@ const Main = () => {
                     breakoutby: breakoutby === 'QB' ? 'passer_player_id' : breakoutby
                 }
             })
+
 
             const data = {
                 ...player.data,
@@ -208,7 +208,7 @@ const Main = () => {
                 })
             break;
         case 'passer_player_id':
-            keys_one = Object.keys(playerData2)
+            keys_two = Object.keys(playerData2)
                 .filter(key => key.startsWith('passer_'))
                 .map(key => {
                     return {
@@ -219,6 +219,7 @@ const Main = () => {
         default:
             break;
     }
+    console.log({ keys_two })
 
     const playerFound1 = players.find(p => p.gsis_id === playerData1.player_id)
     const playerFound2 = players.find(p => p.gsis_id === playerData2.player_id)
