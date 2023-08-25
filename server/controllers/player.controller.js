@@ -515,16 +515,18 @@ exports.wrsummary = async (req, res) => {
             ?.forEach(passer => {
                 const player_passer = total_player.find(p => p.passer_player_id === passer.passer_player_id);
 
-                season_breakout[`passer_${passer.passer_player_id}`] = {
-                    tgt_share: (player_passer.game_id.length / passer.game_id.length).toString(),
-                    yprr: (player_passer.receiving_yards / passer.game_id.length).toString(),
-                    aDot: (player_passer.air_yards / player_passer.game_id.length).toString(),
-                    plays: passer.game_id.length,
-                    targets: player_passer.game_id.length,
-                    rec: player_passer.complete_pass,
-                    yards: player_passer.receiving_yards,
-                    tds: player_passer.touchdown,
-                    games: Array.from(new Set(player_passer.game_id)).length
+                if (player_passer) {
+                    season_breakout[`passer_${passer.passer_player_id}`] = {
+                        tgt_share: (player_passer.game_id.length / passer.game_id.length).toString(),
+                        yprr: (player_passer.receiving_yards / passer.game_id.length).toString(),
+                        aDot: (player_passer.air_yards / player_passer.game_id.length).toString(),
+                        plays: passer.game_id.length,
+                        targets: player_passer.game_id.length,
+                        rec: player_passer.complete_pass,
+                        yards: player_passer.receiving_yards,
+                        tds: player_passer.touchdown,
+                        games: Array.from(new Set(player_passer.game_id)).length
+                    }
                 }
             })
     }
@@ -551,7 +553,7 @@ exports.topwr = async (req, res) => {
                 ELSE CAST(receiving_yards AS INTEGER)
             END`)), 'receiving_yards']
         ],
-        order: [['receiving_yards', 'DESC']],
+        order: [[req.query.statistic, 'DESC']],
         limit: 50,
         where: {
             [Op.and]: [
@@ -573,5 +575,100 @@ exports.topwr = async (req, res) => {
         raw: true
     })
 
-    res.send(topwr)
+    const topwr_details = await Promise.all(
+        topwr.slice(0, 5).map(async wr => {
+            const total = await s2022.findAll({
+                attributes: [
+                    'offense_personnel',
+                    'air_yards',
+                    'receiving_yards',
+                    'complete_pass',
+                    'touchdown',
+                    'game_id'
+                ],
+                where: {
+                    [Op.and]: [
+                        {
+                            offense_players: {
+                                [Op.and]: [
+                                    { [Op.like]: `%${wr.receiver_player_id}%` }
+                                ]
+                            }
+                        },
+                        {
+                            pass_attempt: "1"
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.literal(`CAST(season AS INTEGER) >= ${req.query.startSeason}`),
+                                Sequelize.literal(`CAST(week AS INTEGER) >= ${req.query.startWeek}`)
+                            ]
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.literal(`CAST(season AS INTEGER) <= ${req.query.endSeason}`),
+                                Sequelize.literal(`CAST(week AS INTEGER) <= ${req.query.endWeek}`)
+                            ]
+                        }
+                    ]
+                },
+                raw: true
+            })
+
+            const player = await s2022.findAll({
+                attributes: [
+                    'offense_personnel',
+                    'air_yards',
+                    'receiving_yards',
+                    'complete_pass',
+                    'touchdown',
+                    'game_id'
+                ],
+                where: {
+                    [Op.and]: [
+                        {
+                            offense_players: {
+                                [Op.and]: [
+                                    { [Op.like]: `%${wr.receiver_player_id}%` }
+                                ]
+                            }
+                        },
+                        {
+                            receiver_player_id: `${wr.receiver_player_id}`
+                        },
+                        {
+                            pass_attempt: "1"
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.literal(`CAST(season AS INTEGER) >= ${req.query.startSeason}`),
+                                Sequelize.literal(`CAST(week AS INTEGER) >= ${req.query.startWeek}`)
+                            ]
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.literal(`CAST(season AS INTEGER) <= ${req.query.endSeason}`),
+                                Sequelize.literal(`CAST(week AS INTEGER) <= ${req.query.endWeek}`)
+                            ]
+                        }
+                    ]
+                },
+                raw: true
+            })
+
+            return {
+                receiver_player_id: wr.receiver_player_id,
+                tgt_share: (player.length / total.length).toString(),
+                yprr: (player.reduce((acc, cur) => acc + parseInt(cur.receiving_yards || 0), 0) / total.length).toString(),
+                aDot: (player.reduce((acc, cur) => acc + parseInt(cur.air_yards || 0), 0) / player.length).toString(),
+                plays: total.length,
+                targets: player.length,
+                rec: player.filter(p => parseInt(p.complete_pass) === 1).length,
+                yards: player.reduce((acc, cur) => acc + (parseInt(cur.receiving_yards) || 0), 0),
+                tds: player.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
+                games: Array.from(new Set(player.map(p => p.game_id))).length
+            }
+        })
+    )
+    res.send(topwr_details)
 }

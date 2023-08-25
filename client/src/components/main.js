@@ -1,10 +1,10 @@
 import players from './player_ids.json';
 import axios from 'axios';
 import { useState, useEffect, useRef } from 'react';
-import Dropdown from './dropdown';
 import sleeperlogo from '../../src/images/sleeper_icon.png'
 import headshot from '../images/headshot.png';
 import FiltersModal from './filtersModal';
+import Forms from './forms';
 
 const Main = () => {
     const [whichPlayer, setWhichPlayer] = useState('Player 1')
@@ -23,6 +23,8 @@ const Main = () => {
     const filtersModalRef = useRef();
     const [dropdownVisible, setDropdownVisible] = useState(false);
     const [view, setView] = useState('Player Comparison')
+    const [category, setCategory] = useState('receiving');
+    const [statistic, setStatistic] = useState('receiving_yards');
 
     useEffect(() => {
         const handleExitTooltip = (event) => {
@@ -126,6 +128,8 @@ const Main = () => {
 
         const topwr = await axios.get('/player/topwr', {
             params: {
+                category: category,
+                statistic: statistic,
                 startSeason: startSeason,
                 startWeek: startWeek,
                 endSeason: endSeason,
@@ -225,146 +229,32 @@ const Main = () => {
         </select>
         <div className="player-search">
             <h1>Sleepier Splits</h1>
-            {
-                view === 'Player Comparison'
-                    ? <form onSubmit={(e) => fetchPlayerStats(e)}>
+            <Forms
+                view={view}
+                fetchPlayerStats={fetchPlayerStats}
+                fetchTop50={fetchTop50}
+                whichPlayer={whichPlayer}
+                setWhichPlayer={setWhichPlayer}
+                playerToSearch={playerToSearch}
+                setPlayerToSearch={setPlayerToSearch}
+                players={players}
+                setDropdownVisible={setDropdownVisible}
+                setFiltersModalVisible={setFiltersModalVisible}
+                startSeason={startSeason}
+                setStartSeason={setStartSeason}
+                startWeek={startWeek}
+                setStartWeek={setStartWeek}
+                endSeason={endSeason}
+                setEndSeason={setEndSeason}
+                endWeek={endWeek}
+                setEndWeek={setEndWeek}
+                isLoading={isLoading}
+                category={category}
+                setCategory={setCategory}
+                statistic={statistic}
+                setStatistic={setStatistic}
+            />
 
-                        <div>
-                            <label>
-                                <span onClick={() => setWhichPlayer(prevState => prevState === 'Player 1' ? 'Player 2' : 'Player 1')}>{whichPlayer}</span>
-                                <Dropdown
-                                    searched={playerToSearch}
-                                    setSearched={setPlayerToSearch}
-                                    list={players}
-                                    sendDropdownVisible={(data) => setDropdownVisible(data)}
-                                />
-                                <i onClick={() => setFiltersModalVisible(true)} className="fa-solid fa-filter"></i>
-                            </label>
-                        </div>
-                        <div className='range-container'>
-                            <div className='range'>
-                                <label>
-                                    FROM
-                                    <div>
-                                        <select value={startSeason} onChange={(e) => setStartSeason(e.target.value)}>
-                                            <option>2022</option>
-                                            <option>2021</option>
-                                            <option>2020</option>
-                                            <option>2019</option>
-                                            <option>2018</option>
-                                            <option>2017</option>
-                                            <option>2016</option>
-                                        </select>
-                                        <em>Week</em>
-                                        <select value={startWeek} onChange={(e) => setStartWeek(e.target.value)}>
-                                            {
-                                                Array.from(Array(18).keys()).map(key => {
-                                                    return <option key={key + 1}>
-                                                        {key + 1}
-                                                    </option>
-                                                })
-                                            }
-                                        </select>
-                                    </div>
-                                </label>
-                            </div>
-                            <div className='range'>
-                                <label>
-                                    TO
-                                    <div>
-                                        <select value={endSeason} onChange={(e) => setEndSeason(e.target.value)}>
-                                            <option>2022</option>
-                                            <option>2021</option>
-                                            <option>2020</option>
-                                            <option>2019</option>
-                                            <option>2018</option>
-                                            <option>2017</option>
-                                            <option>2016</option>
-                                        </select>
-                                        <em>Week</em>
-                                        <select value={endWeek} onChange={(e) => setEndWeek(e.target.value)}>
-                                            {
-                                                Array.from(Array(18).keys()).map(key => {
-                                                    return <option key={key + 1}>
-                                                        {key + 1}
-                                                    </option>
-                                                })
-                                            }
-                                        </select>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        <button type="submit" disabled={isLoading}>Submit</button>
-                    </form>
-                    : view === 'Top 50'
-                        ? <form onSubmit={(e) => fetchTop50(e)}>
-                            <div>
-                                <label>
-                                    Category
-                                    <select>
-                                        <option value={'receiving_yards'}>receiving yards</option>
-                                    </select>
-                                </label>
-                            </div>
-                            <div className='range-container'>
-                                <div className='range'>
-                                    <label>
-                                        FROM
-                                        <div>
-                                            <select value={startSeason} onChange={(e) => setStartSeason(e.target.value)}>
-                                                <option>2022</option>
-                                                <option>2021</option>
-                                                <option>2020</option>
-                                                <option>2019</option>
-                                                <option>2018</option>
-                                                <option>2017</option>
-                                                <option>2016</option>
-                                            </select>
-                                            <em>Week</em>
-                                            <select value={startWeek} onChange={(e) => setStartWeek(e.target.value)}>
-                                                {
-                                                    Array.from(Array(18).keys()).map(key => {
-                                                        return <option key={key + 1}>
-                                                            {key + 1}
-                                                        </option>
-                                                    })
-                                                }
-                                            </select>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div className='range'>
-                                    <label>
-                                        TO
-                                        <div>
-                                            <select value={endSeason} onChange={(e) => setEndSeason(e.target.value)}>
-                                                <option>2022</option>
-                                                <option>2021</option>
-                                                <option>2020</option>
-                                                <option>2019</option>
-                                                <option>2018</option>
-                                                <option>2017</option>
-                                                <option>2016</option>
-                                            </select>
-                                            <em>Week</em>
-                                            <select value={endWeek} onChange={(e) => setEndWeek(e.target.value)}>
-                                                {
-                                                    Array.from(Array(18).keys()).map(key => {
-                                                        return <option key={key + 1}>
-                                                            {key + 1}
-                                                        </option>
-                                                    })
-                                                }
-                                            </select>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                            <button type="submit" disabled={isLoading}>Submit</button>
-                        </form>
-                        : null
-            }
         </div>
         {
             filtersModalVisible ?
