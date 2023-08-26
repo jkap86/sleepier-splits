@@ -3,6 +3,14 @@
 const throng = require('throng');
 const WORKERS = process.env.WEB_CONCURRENCY || 1;
 
+setInterval(() => {
+    const hour = new Date().getUTCHours()
+
+    if (hour < 6 || hour > 12) {
+        https.get('https://sleepiersplits-73b0aab383b9.herokuapp.com/');
+    }
+}, 29 * 60 * 1000);
+
 throng({
     worker: start,
     count: WORKERS

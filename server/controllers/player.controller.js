@@ -549,9 +549,9 @@ exports.topwr = async (req, res) => {
         attributes: [
             'receiver_player_id',
             [Sequelize.fn('SUM', Sequelize.literal(`CASE
-                WHEN receiving_yards = '' THEN 0
-                ELSE CAST(receiving_yards AS INTEGER)
-            END`)), 'receiving_yards']
+                WHEN ${req.query.statistic} = '' THEN 0
+                ELSE CAST(${req.query.statistic} AS INTEGER)
+            END`)), req.query.statistic]
         ],
         order: [[req.query.statistic, 'DESC']],
         limit: 50,
@@ -575,100 +575,103 @@ exports.topwr = async (req, res) => {
         raw: true
     })
 
-    const topwr_details = await Promise.all(
-        topwr.slice(0, 5).map(async wr => {
-            const total = await s2022.findAll({
-                attributes: [
-                    'offense_personnel',
-                    'air_yards',
-                    'receiving_yards',
-                    'complete_pass',
-                    'touchdown',
-                    'game_id'
-                ],
-                where: {
+    const total = await s2022.findAll({
+        attributes: [
+            'receiver_player_id',
+            [Sequelize.fn('SUM', Sequelize.literal(
+                `CASE
+                    WHEN air_yards = '' THEN 0
+                    ELSE CAST(air_yards AS INTEGER)
+                END`
+            )), 'air_yards'],
+            [Sequelize.fn('SUM', Sequelize.literal(
+                `CASE
+                    WHEN receiving_yards = '' THEN 0
+                    ELSE CAST(receiving_yards AS INTEGER)
+                END`
+            )), 'receiving_yards'],
+            [Sequelize.fn('SUM', Sequelize.literal(
+                `CASE
+                    WHEN complete_pass = '' THEN 0
+                    ELSE CAST (complete_pass AS INTEGER)
+                END`
+            )), 'complete_pass'],
+            [Sequelize.fn('SUM', Sequelize.literal(
+                `CASE
+                    WHEN touchdown = '' THEN 0
+                    ELSE CAST (touchdown AS INTEGER)
+                END`
+            )), 'touchdowns'],
+            [Sequelize.fn('COUNT', Sequelize.col('game_id')), 'targets'],
+            [Sequelize.fn('COUNT', Sequelize.fn('DISTINCT', Sequelize.col('game_id'))), 'game_id']
+        ],
+        where: {
+            [Op.and]: [
+                {
+                    offense_players: {
+                        [Op.or]: topwr.map(wr => {
+                            return { [Op.like]: `%${wr.receiver_player_id}%` }
+                        })
+                    }
+                },
+                {
+                    pass_attempt: "1"
+                },
+                {
                     [Op.and]: [
-                        {
-                            offense_players: {
-                                [Op.and]: [
-                                    { [Op.like]: `%${wr.receiver_player_id}%` }
-                                ]
-                            }
-                        },
-                        {
-                            pass_attempt: "1"
-                        },
-                        {
-                            [Op.and]: [
-                                Sequelize.literal(`CAST(season AS INTEGER) >= ${req.query.startSeason}`),
-                                Sequelize.literal(`CAST(week AS INTEGER) >= ${req.query.startWeek}`)
-                            ]
-                        },
-                        {
-                            [Op.and]: [
-                                Sequelize.literal(`CAST(season AS INTEGER) <= ${req.query.endSeason}`),
-                                Sequelize.literal(`CAST(week AS INTEGER) <= ${req.query.endWeek}`)
-                            ]
-                        }
+                        Sequelize.literal(`CAST(season AS INTEGER) >= ${req.query.startSeason}`),
+                        Sequelize.literal(`CAST(week AS INTEGER) >= ${req.query.startWeek}`)
                     ]
                 },
-                raw: true
-            })
-
-            const player = await s2022.findAll({
-                attributes: [
-                    'offense_personnel',
-                    'air_yards',
-                    'receiving_yards',
-                    'complete_pass',
-                    'touchdown',
-                    'game_id'
-                ],
-                where: {
+                {
                     [Op.and]: [
-                        {
-                            offense_players: {
-                                [Op.and]: [
-                                    { [Op.like]: `%${wr.receiver_player_id}%` }
-                                ]
-                            }
-                        },
-                        {
-                            receiver_player_id: `${wr.receiver_player_id}`
-                        },
-                        {
-                            pass_attempt: "1"
-                        },
-                        {
-                            [Op.and]: [
-                                Sequelize.literal(`CAST(season AS INTEGER) >= ${req.query.startSeason}`),
-                                Sequelize.literal(`CAST(week AS INTEGER) >= ${req.query.startWeek}`)
-                            ]
-                        },
-                        {
-                            [Op.and]: [
-                                Sequelize.literal(`CAST(season AS INTEGER) <= ${req.query.endSeason}`),
-                                Sequelize.literal(`CAST(week AS INTEGER) <= ${req.query.endWeek}`)
-                            ]
-                        }
+                        Sequelize.literal(`CAST(season AS INTEGER) <= ${req.query.endSeason}`),
+                        Sequelize.literal(`CAST(week AS INTEGER) <= ${req.query.endWeek}`)
                     ]
-                },
-                raw: true
-            })
+                }
+            ]
+        },
+        group: ['receiver_player_id'],
+        raw: true
+    })
 
-            return {
-                receiver_player_id: wr.receiver_player_id,
-                tgt_share: (player.length / total.length).toString(),
-                yprr: (player.reduce((acc, cur) => acc + parseInt(cur.receiving_yards || 0), 0) / total.length).toString(),
-                aDot: (player.reduce((acc, cur) => acc + parseInt(cur.air_yards || 0), 0) / player.length).toString(),
-                plays: total.length,
-                targets: player.length,
-                rec: player.filter(p => parseInt(p.complete_pass) === 1).length,
-                yards: player.reduce((acc, cur) => acc + (parseInt(cur.receiving_yards) || 0), 0),
-                tds: player.reduce((acc, cur) => acc + (parseInt(cur.touchdown) || 0), 0),
-                games: Array.from(new Set(player.map(p => p.game_id))).length
+    const top_ids = topwr.map(wr => wr.receiver_player_id)
+
+    const topwr_details = [];
+
+    for (const wr of total.filter(t => top_ids.includes(t.receiver_player_id))) {
+        const routes = await s2022.count({
+            where: {
+                [Op.and]: [
+                    {
+                        offense_players: {
+                            [Op.like]: `%${wr.receiver_player_id}%`
+                        }
+                    },
+                    {
+                        pass_attempt: "1"
+                    },
+                    {
+                        [Op.and]: [
+                            Sequelize.literal(`CAST(season AS INTEGER) >= ${req.query.startSeason}`),
+                            Sequelize.literal(`CAST(week AS INTEGER) >= ${req.query.startWeek}`)
+                        ]
+                    },
+                    {
+                        [Op.and]: [
+                            Sequelize.literal(`CAST(season AS INTEGER) <= ${req.query.endSeason}`),
+                            Sequelize.literal(`CAST(week AS INTEGER) <= ${req.query.endWeek}`)
+                        ]
+                    }
+                ]
             }
         })
-    )
+
+        topwr_details.push({
+            ...wr,
+            routes: routes
+        })
+    }
+
     res.send(topwr_details)
 }

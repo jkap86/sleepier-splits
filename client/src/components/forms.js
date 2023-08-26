@@ -98,7 +98,7 @@ const Forms = ({
                         </label>
                     </div>
                 </div>
-                <button type="submit" disabled={isLoading}>Submit</button>
+                <button type="submit" disabled={isLoading}>Search</button>
             </form>
             break;
         case 'Top 50':
@@ -114,6 +114,7 @@ const Forms = ({
                         Statistic
                         <select value={statistic} onChange={(e) => setStatistic(e.target.value)}>
                             <option value={'receiving_yards'}>receiving yards</option>
+
                         </select>
                     </label>
                 </div>
@@ -171,7 +172,7 @@ const Forms = ({
                         </label>
                     </div>
                 </div>
-                <button type="submit" disabled={isLoading}>Submit</button>
+                <button type="submit" disabled={isLoading}>Search</button>
             </form>
             break;
         default:

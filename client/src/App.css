@@ -33,7 +33,6 @@ body {
   margin: auto;
   margin: 0;
   padding: 0;
-  padding-bottom: 25%;
   position: relative;
 }
 
@@ -73,24 +72,66 @@ h2 {
   flex-wrap: wrap;
 }
 
-h2>table {
+table {
   table-layout: fixed;
-  width: 40rem;
+  width: 100%;
   margin: auto;
   border: 1rem ridge grey;
   font-size: 3rem;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-h2>table th,
-h2>table td {
+
+table td {
   box-shadow: 0 0 .5rem white;
   padding: 1rem;
-  background-image: radial-gradient(darkred -50%, #301934 75%);
+  background-image: radial-gradient(darkred -50%, orangered 75%);
+  font-weight: 900;
+  text-shadow: 0 0 1rem black;
   box-shadow: inset 0 0 2rem black;
 }
 
-h2>table th {
-  text-align: left;
+table th {
+  box-shadow: 0 0 .5rem white;
+  text-align: center;
+  box-shadow: inset 0 0 2rem black;
+  padding: 1rem;
+  text-shadow: 0 0 1rem black;
+
+}
+
+div.top50 table th,
+div.top50 table td {
+  box-shadow: 0 0 .5rem white;
+
+  height: 7rem;
+  box-shadow: inset 0 0 2rem black;
+  color: white
+}
+
+div.top50 table th {
+  background-image: radial-gradient(purple -50%, #301934 75%);
+}
+
+div.top50 table td {
+  background-image: radial-gradient(var(--color4) -50%, #301934 75%);
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+div.top50 table td {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  padding-left: .5rem;
+  padding-right: .5rem;
+}
+
+div.top50 table>thead {
+  position: sticky;
+  top: 0rem;
+  box-shadow: 0 0 3rem white;
 }
 
 h3 {
@@ -115,17 +156,18 @@ form {
 }
 
 form>button[type='submit'] {
-  background-color: darkred;
-  font-family: var(--font1);
+  background-image: radial-gradient(darkorange -50%, orangered 75%);
+  filter: contrast(2);
+  font-family: var(--font4);
   font-size: 3.5rem;
   font-weight: 900;
   width: 30%;
   margin: 2rem auto;
-  color: var(--te);
+  color: #301934;
   padding: 1rem;
-  border: .5rem groove var(--te);
+  border: .5rem groove #301934;
   border-radius: 5rem;
-  box-shadow: inset 0 0 3rem black, 0 0 1rem white;
+  box-shadow: inset 0 0 3rem #301934, 0 0 1.5rem white;
 }
 
 form>div>label {
@@ -286,23 +328,44 @@ div.player-search {
   z-index: 0;
 }
 
-div.player-card {
-  width: 50%;
-  display: inline-block;
+div.player-card,
+div.top50 {
+
   position: sticky;
   top: 0;
   z-index: 1;
   background-color: rgba(100, 100, 100, .90);
-  background-image: radial-gradient(blue -50%, transparent 100%);
-  box-shadow: inset 0 0 10rem blue, 0 0 5rem white;
+
   height: 100vh;
   overflow-y: scroll;
   overflow-x: hidden;
 }
 
+
+div.player-card {
+  width: 50%;
+  display: inline-block;
+  background-image: radial-gradient(blue -50%, transparent 100%);
+  box-shadow: inset 0 0 10rem blue, 0 0 5rem white;
+}
+
 div.player-card.two {
   background-image: radial-gradient(darkred -50%, transparent 100%);
   box-shadow: inset 0 0 10rem darkred, 0 0 5rem white;
+}
+
+div.player-card table {
+  background-color: var(--color1);
+}
+
+div.player-card table th,
+div.player-card table td {
+  background-image: radial-gradient(red -50%, darkred 75%);
+}
+
+div.player-card.two table th,
+div.player-card.two table td {
+  background-image: radial-gradient(blue -50%, midnightblue 75%);
 }
 
 div.filters-modal {
