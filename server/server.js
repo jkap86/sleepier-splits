@@ -1,6 +1,7 @@
 'use strict'
 
 const throng = require('throng');
+const https = require("https");
 const WORKERS = process.env.WEB_CONCURRENCY || 1;
 
 setInterval(() => {
